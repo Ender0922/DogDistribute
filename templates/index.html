@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOGDOGDOG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .btn {
+            border: 2px solid #4CAF50;
+            color: #ffffff;
+            background-color: #4CAF50;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+        img#uploadedImage {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        p {
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            fileInput.addEventListener('change', async function(event) {
+                const formData = new FormData();
+                formData.append('image', fileInput.files[0]);
+
+                console.log(...formData);  // 폼 데이터 확인
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log(result);  // 서버 응답 확인
+
+                if (result.imageBase64) {
+                    document.getElementById('uploadedImage').src = `data:image/jpeg;base64,${result.imageBase64}`;
+                }
+                if (result.breed) {
+                    document.getElementById('breed').innerText = '견종 : ' + result.breed;
+                    document.getElementById('size').innerText = '무게 : ' + result.size;
+                    document.getElementById('lifetime').innerText = '수명 : ' + result.lifetime;
+                    document.getElementById('personality').innerText = '성격 : ' + result.personality;
+                    document.getElementById('environment').innerText = '환경 : ' + result.environment;
+                    document.getElementById('feedamount').innerText = '사료 섭취량 : ' + result.feedamount;
+                    document.getElementById('working').innerText = '산책 시간 : ' + result.working;
+                    document.getElementById('disease').innerText = '특이 질병 : ' + result.disease;
+                    document.getElementById('caution').innerText = '주의 사항 : ' + result.caution;
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DogTionary</h1>
+        </header>
+        <main>  
+            <section class="upload-section">
+                <form id="upload" method="POST" enctype="multipart/form-data">
+                    <div class="upload-btn-wrapper">
+                        <button class="btn" type="button">Upload Image</button>
+                        <input type="file" name="image" accept="image/*">
+                    </div>
+                </form>
+                <img id="uploadedImage" alt="Uploaded Image">
+                <p id="breed">견종 : {{ breed }}</p>
+                <p id="size">무게 : {{ size }}</p>
+                <p id="lifetime">수명 : {{ lifetime }}</p>
+                <p id="personality">성격 : {{ personality }}</p>
+                <p id="environment">환경 : {{ environment }}</p>
+                <p id="feedamount">사료 섭취량 : {{ feedamount }}</p>
+                <p id="working">산책 시간 : {{ working }}</p>
+                <p id="disease">특이 질병 : {{ disease }}</p>
+                <p id="caution">주의 사항 : {{ caution }}</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
